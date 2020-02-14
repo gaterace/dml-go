@@ -22,12 +22,16 @@ import (
 	"strconv"
 	"time"
 
+	"encoding/hex"
+
 	"github.com/google/uuid"
 	sdec "github.com/shopspring/decimal"
 )
 
 var validDecimal = regexp.MustCompile("^(\\+-)?\\d+(.\\d+)$")
+var validGuid = regexp.MustCompile("^[0-9a-fA-F]{32}$")
 var invalidDecimalError = errors.New("not a valid decimal string")
+var invalidGuidError = errors.New("not a valid guid")
 
 // Create a dml.DateTime structure from a string.
 // String can be in format
@@ -85,7 +89,17 @@ func DateTimeFromString(s string) *DateTime {
 	return result
 }
 
-// Create a time.time value from a dml.DateTime instance.
+// Create a dml.Datetime structure from a time.Time value
+func DateTimeFromTime(t time.Time) *DateTime {
+	var millis int64
+
+	millis = t.Unix() * 1000
+	result := &DateTime{Milliseconds: millis}
+
+	return result
+}
+
+// Create a time.Time value from a dml.DateTime instance.
 func (m *DateTime) TimeFromDateTime() time.Time {
 	millis := m.Milliseconds
 	secs := millis / 1000
@@ -148,4 +162,46 @@ func ConvertUuid(id uuid.UUID) *Guid {
 	b := id[:]
 	result := &Guid{Guid: b}
 	return result
+}
+
+// Create  dml.Guid from byte slice
+func GuidFromBytes(b []byte) (*Guid, error) {
+	if len(b) != 16 {
+		return nil, invalidGuidError
+	}
+
+	result := &Guid{Guid: b}
+	return result, nil
+}
+
+// Create dml.Guid from string with hex representation
+func GuidFromString(s string) (*Guid, error) {
+	if !validGuid.MatchString(s) {
+		return nil, invalidGuidError
+	}
+
+	b, err := hex.DecodeString(s)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &Guid{Guid: b}
+	return result, nil
+}
+
+// Create a new dml.Guid
+func NewGuid() *Guid {
+	nid := uuid.New()
+	result := ConvertUuid(nid)
+	return result
+}
+
+func (m *Guid) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString("{")
+
+	hexstr := hex.EncodeToString(m.Guid)
+	buffer.WriteString(fmt.Sprintf("\"guid\": \"%s\"", hexstr))
+
+	buffer.WriteString("}")
+	return buffer.Bytes(), nil
 }
