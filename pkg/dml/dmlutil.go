@@ -44,7 +44,11 @@ func DateTimeFromString(s string) *DateTime {
 
 	var millis int64
 
-	if (len(s) == 10) || (len(s) == 19) || (len(s) == 26) {
+	if len(s) > 19 {
+		s = s[0:19]
+	}
+
+	if (len(s) == 10) || (len(s) == 19) {
 		year, err := strconv.Atoi(s[0:4])
 		if err != nil {
 			return nil
@@ -64,7 +68,7 @@ func DateTimeFromString(s string) *DateTime {
 		min := 0
 		sec := 0
 
-		if (len(s) == 19) || (len(s) == 26) {
+		if len(s) == 19 {
 			hour, err = strconv.Atoi(s[11:13])
 			if err != nil {
 				return nil
