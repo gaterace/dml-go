@@ -1,4 +1,4 @@
-// Copyright 2019 Demian Harvill
+// Copyright 2019-2021 Demian Harvill
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -37,12 +37,14 @@ var invalidGuidError = errors.New("not a valid guid")
 // String can be in format
 //    YYYY-MM-DD HH:MM:SS
 // or
+//    YYYY-MM-DD HH:MM:SS.dddddd
+// or
 //    YYYY-MM-DD
 func DateTimeFromString(s string) *DateTime {
 
 	var millis int64
 
-	if (len(s) == 10) || (len(s) == 19) {
+	if (len(s) == 10) || (len(s) == 19) || (len(s) == 26) {
 		year, err := strconv.Atoi(s[0:4])
 		if err != nil {
 			return nil
@@ -62,7 +64,7 @@ func DateTimeFromString(s string) *DateTime {
 		min := 0
 		sec := 0
 
-		if len(s) == 19 {
+		if (len(s) == 19) || (len(s) == 26) {
 			hour, err = strconv.Atoi(s[11:13])
 			if err != nil {
 				return nil

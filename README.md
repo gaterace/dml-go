@@ -1,6 +1,6 @@
 # dml-go golang utilities
 
-Copyright 2019 Demian Harvill
+Copyright 2019-2021 Demian Harvill
 
 ## Overview
 
